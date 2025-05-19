@@ -1,0 +1,116 @@
+﻿@model StudentViewModel
+<link href="~/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<div class="modal-header">
+    <h4 class="modal-title">Edit Student</h4>
+</div>
+
+<div class="modal-body">
+    <form asp-action="EditStudent" asp-controller="Students" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <input type="hidden" name="StudentId" value="@Model.StudentId" />
+            <input type="hidden" name="OldImageUrl" value="@Model.ImageUrl" />
+            <div class="col-md-6">
+
+
+                <h4>Student Information</h4>
+                <div class="form-group">
+                    <label asp-for="StudentName" class="control-label"></label>
+                    <input asp-for="StudentName" class="form-control" />
+                    <span asp-validation-for="StudentName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MobileNo" class="control-label"></label>
+                    <input asp-for="MobileNo" class="form-control" />
+                    <span asp-validation-for="MobileNo" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="IsEnrolled" /> @Html.DisplayNameFor(model => model.IsEnrolled)
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AdmissionDate" class="control-label"></label>
+                    <input asp-for="AdmissionDate" class="form-control" />
+                    <span asp-validation-for="AdmissionDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="RegistrationFee" class="control-label"></label>
+                    <input asp-for="RegistrationFee" class="form-control" />
+                    <span asp-validation-for="RegistrationFee" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <img id="imageFile()" src="~/images/@Model.ImageUrl" width="100" />
+                    <label asp-for="Picture" class="control-label"></label>
+                    <input type="file" onchange="readUrl(this)" name="Picture" id="Picture" class="invisible" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="CourseId" class="control-label"></label>
+                    <select asp-for="CourseId" class="form-control" asp-items="@(new SelectList(Model.Courses,"CourseId","CourseName"))">
+                        <option value="">Select Course</option>
+                    </select>
+                    <span asp-validation-for="CourseId" class="text-danger"></span>
+                </div>
+
+
+            </div>
+            <div class="col-md-5">
+                <h4>Module Information</h4>
+                <button type="button" class="btn btn-warning mb-2" onclick="AddModule()">Add Module</button>
+                @Html.Partial("_AddModule", Model.Modules)
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Edit</button>
+        </div>
+    </form>
+</div>
+<script src="~/jquery/jquery.min.js"></script>
+<script>
+    function readUrl(i){
+        if(i.files && i.files[0]){
+            var reader=new FileReader();
+            reader.onload=function(e){
+                $("#imageFile").attr('src',e.target.result);
+            }
+        }
+        reader.readAsDataURL(i.files[0]);
+    }
+    function deleteRow(btn)
+    {
+        $(btn).closest('tr').remove();
+        UpdateIndex();
+    }
+    function AddModule(){
+        var lastIndex=parseInt($("#HIndex").val());
+        var newRow=
+            `
+    <tr>
+        <td>
+            <input type="text" name="Modules[${lastIndex}].ModuleName" value="" class="form-control" />
+        </td>
+        <td>
+            <input type="text" name="Modules[${lastIndex}].Duration" value="" class="form-control" />
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+        </td>
+    </tr>
+    `;
+    $("#ExTable tbody").append(newRow);
+    $("#HIndex").val(lastIndex+1);
+    UpdateIndex();
+    }
+    function UpdateIndex(){
+         $("#ExTable tbody tr").each(function(index){
+             $(this).find("input[name^='Modules']").each(function(){
+                 var name=$(this).attr('name');
+                 name=name.replace(/Modules\[\d+\]/,"Modules["+index+"]");
+                 $(this).attr('name',name);
+             })
+         })
+    }
+</script>
+
+
+
